@@ -35,7 +35,7 @@ func main() {
 	counter, err := db.photoLoop()
 	if err != nil {
 		log.Println("Error in photoLoop", err)
-		log.Println("You can resume later with the -first flag set higher then %d", counter)
+		log.Println("You can resume later with the -first flag set higher then ", counter)
 	} else {
 		log.Println("Finished! Processed ", counter, " files.")
 	}
