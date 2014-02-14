@@ -14,10 +14,10 @@ import (
 )
 
 var (
-	camput  = flag.String("camput", "bin/camput", "path to camput binary")
-	photoDb = flag.String("db", "test_db", "path to F-Spot sqlitedb")
-  clearCache = flag.Bool("clear", true, "if set to false the camlistore cache is not cleared")
-  firstPhotoId = flag.Int("first", 0, "first photo id to process")
+	camput       = flag.String("camput", "bin/camput", "path to camput binary")
+	photoDb      = flag.String("db", "test_db", "path to F-Spot sqlitedb")
+	clearCache   = flag.Bool("clear", true, "if set to false the camlistore cache is not cleared")
+	firstPhotoId = flag.Int("first", 0, "first photo id to process")
 )
 
 func main() {
@@ -28,14 +28,14 @@ func main() {
 	}
 	defer conn.Close()
 	db := fspotDb{conn, make(map[int]string)}
-  err = db.calculateTagPaths()
-  if err != nil {
+	err = db.calculateTagPaths()
+	if err != nil {
 		log.Fatal("Unable to populate tags paths")
-  }
-  counter, err := db.photoLoop()
+	}
+	counter, err := db.photoLoop()
 	if err != nil {
 		log.Println("Error in photoLoop", err)
-    log.Println("You can resume later with the -first flag set higher then %d", counter)
+		log.Println("You can resume later with the -first flag set higher then %d", counter)
 	} else {
 		log.Println("Finished! Processed ", counter, " files.")
 	}
@@ -81,10 +81,10 @@ func (db *fspotDb) photoLoop() (counter int, err error) {
 	for stmt.Next() {
 		counter++
 		var i int
-    var timeStamp int64
+		var timeStamp int64
 		var desc string
 		stmt.Scan(&i, &desc, &timeStamp)
-    photoDate := time.Unix(timeStamp, 0)
+		photoDate := time.Unix(timeStamp, 0)
 
 		var tag map[int]string
 		tag, err = db.tags(i)
@@ -115,7 +115,7 @@ func (db *fspotDb) photoLoop() (counter int, err error) {
 				if err != nil {
 					return
 				}
-        err = addAttr(camliId, "fspot_tag_path", db.absoluteTagMap[k])
+				err = addAttr(camliId, "fspot_tag_path", db.absoluteTagMap[k])
 				if err != nil {
 					return
 				}
@@ -148,9 +148,9 @@ func (db *fspotDb) tags(id int) (tags map[int]string, err error) {
 	tags = make(map[int]string)
 	for stmt.Next() {
 		var name string
-    var id int
+		var id int
 		stmt.Scan(&id, &name)
-    tags[id]=name
+		tags[id] = name
 	}
 	return
 }
