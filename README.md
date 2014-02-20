@@ -1,12 +1,13 @@
 fspot2camlistore
 ================
 
-Import your F-Spot collections into Camlistore. This tools adds the following F-Spot photo attributes to the permanode associated with the photo's default version image:
+Import your F-Spot collections to Camlistore. This tools adds the following F-Spot photo attributes to the permanode associated with the photo's default version image:
 
   * fspot_photo_id, the id of the photo in F-Spot
   * fspot_time, the time extracted from exif by F-Spot (propably redundant)
   * tags for all the F-Spot tags associated with this photo
   * fspot_tag_path, all full tag paths associated with the photo
+  * description, if it was set in F-Spot
 
 ## Installation:
 
