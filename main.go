@@ -127,8 +127,10 @@ func (db *fspotDb) photoLoop() (counter int, err error) {
 				}
 			}
 		}
-		if counter%100 == 0 && *clearCache {
+    if counter % 100 == 0 {
 			log.Printf("INFO Put %d files. Clearing camlistore cache", counter)
+    }
+		if *clearCache {
 			home := strings.TrimRight(os.Getenv("HOME"), "/")
 			cmd := exec.Command("rm", "-rf", fmt.Sprintf("%s/.cache/camlistore", home))
 			err = cmd.Run()
