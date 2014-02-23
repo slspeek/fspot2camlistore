@@ -5,9 +5,9 @@ import (
 	"camlistore.org/pkg/schema"
 	"camlistore.org/pkg/syncutil"
 	"code.google.com/p/gosqlite/sqlite"
-	"github.com/slspeek/fspot2camlistore/fspot"
 	"flag"
 	"fmt"
+	"github.com/slspeek/fspot2camlistore/fspot"
 	"log"
 	"os"
 	"sync"
@@ -21,7 +21,6 @@ var (
 )
 
 var wg sync.WaitGroup
-
 
 func storePhoto(p fspot.Photo) (permaS string, err error) {
 	f, err := os.Open(p.Path)
@@ -69,7 +68,7 @@ func handlePhotos(ch <-chan fspot.Photo) {
 	for p := range ch {
 		perma, err := storePhoto(p)
 		if err != nil {
-			log.Fatalf("Couldn't store %v: %v", p.Id, err)
+			log.Printf("Couldn't store %v: %v", p.Id, err)
 		}
 		log.Printf("Stored %d as %v", p.Id, perma)
 	}
@@ -85,7 +84,7 @@ func main() {
 	db := fspot.Db{conn, make(map[int]string)}
 	err = db.CalculateTagPaths()
 	if err != nil {
-    log.Fatalf("Unable to populate tags paths: %v", err)
+		log.Fatalf("Unable to populate tags paths: %v", err)
 	}
 
 	ch := make(chan fspot.Photo)

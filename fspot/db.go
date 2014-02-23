@@ -21,7 +21,7 @@ type Photo struct {
 }
 
 type Db struct {
-	Conn           *sqlite.Conn
+	Conn          *sqlite.Conn
 	AbsTagPathMap map[int]string
 }
 
@@ -66,7 +66,7 @@ func (db *Db) PhotoLoop(firstPhotoId int, ch chan<- Photo) (err error) {
 	for stmt.Next() {
 		var timeStamp int64
 		var desc string
-    var filename string
+		var filename string
 		var fspot_id int
 
 		err = stmt.Scan(&fspot_id, &desc, &filename, &timeStamp)
@@ -86,22 +86,22 @@ func (db *Db) PhotoLoop(firstPhotoId int, ch chan<- Photo) (err error) {
 			return
 		}
 
-    tags := []string{}
-    absTagPaths := []string{}
-    for k, v := range tag {
-      tags = append(tags, v)
-      absTagPaths = append(absTagPaths, db.AbsTagPathMap[k])
-    }
-    sort.Strings(tags)
-    sort.Strings(absTagPaths)
-    photo := Photo{Id:fspot_id,
-                   Desc:desc,
-                   Tags: tags,
-                   AbsTagPaths: absTagPaths,
-                   Filename: filename,
-                   Path: path,
-                   Taken: photoDate}
-    ch <- photo
+		tags := []string{}
+		absTagPaths := []string{}
+		for k, v := range tag {
+			tags = append(tags, v)
+			absTagPaths = append(absTagPaths, db.AbsTagPathMap[k])
+		}
+		sort.Strings(tags)
+		sort.Strings(absTagPaths)
+		photo := Photo{Id: fspot_id,
+			Desc:        desc,
+			Tags:        tags,
+			AbsTagPaths: absTagPaths,
+			Filename:    filename,
+			Path:        path,
+			Taken:       photoDate}
+		ch <- photo
 	}
 	return
 }
