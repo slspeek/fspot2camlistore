@@ -57,7 +57,7 @@ func (db *Db) CalculateTagPaths() (err error) {
 	return
 }
 
-func (db *Db) PhotoLoop(firstPhotoId int, ch chan<- Photo) (err error) {
+func (db *Db) PhotoLoop(firstPhotoId int64, ch chan<- Photo) (err error) {
 	stmt, err := db.Conn.Prepare(fmt.Sprintf("SELECT id, description, filename, time FROM photos WHERE id >= %d ORDER BY id;", firstPhotoId))
 	if err != nil {
 		return

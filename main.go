@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/slspeek/fspot2camlistore/fspot"
+	"github.com/slspeek/fspot2camlistore/state"
 	"log"
 	"os"
 	"sync"
@@ -15,12 +16,12 @@ import (
 )
 
 var (
-	photoDb      = flag.String("db", "test_db", "path to F-Spot sqlitedb")
-	firstPhotoId = flag.Int("first", 0, "first photo id to process")
-	camliClient  = client.NewOrFail()
+	photoDb     = flag.String("db", "test_db", "path to F-Spot sqlitedb")
+	camliClient = client.NewOrFail()
 )
 
-var wg sync.WaitGroup
+var wgWorkers sync.WaitGroup
+var wgLogger sync.WaitGroup
 
 func storePhoto(p fspot.Photo) (permaS string, err error) {
 	f, err := os.Open(p.Path)
@@ -63,19 +64,43 @@ func storePhoto(p fspot.Photo) (permaS string, err error) {
 	return perma.String(), grp.Err()
 }
 
-func handlePhotos(ch <-chan fspot.Photo) {
-	defer wg.Done()
+func handlePhotos(ch <-chan fspot.Photo, logger state.LogChan) {
+	defer wgWorkers.Done()
 	for p := range ch {
 		perma, err := storePhoto(p)
+		logRecord := state.Log{p.Id, perma, err}
 		if err != nil {
 			log.Printf("Couldn't store %v: %v", p.Id, err)
 		}
 		log.Printf("Stored %d as %v", p.Id, perma)
+		logger <- logRecord
 	}
 }
 
 func main() {
 	flag.Parse()
+	stateDb, err := state.Open()
+	if err != nil {
+		log.Fatalf("Unable to open state recording database because: %v", err)
+	}
+	err = stateDb.Init()
+	if err != nil {
+		log.Fatalf("Unable to create table because: %v", err)
+	}
+
+	firstPhotoId, err := stateDb.MaxId()
+	if err != nil {
+		log.Fatalf("Unable to determine start position because: %v", err)
+	}
+	firstPhotoId++
+	wgLogger.Add(1)
+	go func() {
+		defer wgLogger.Done()
+		for record := range stateDb.Chan {
+			stateDb.Log(record)
+		}
+	}()
+
 	conn, err := sqlite.Open(*photoDb)
 	if err != nil {
 		log.Fatalf("Unable to open f-spot source database because: %v", err)
@@ -90,18 +115,21 @@ func main() {
 	ch := make(chan fspot.Photo)
 
 	for i := 0; i < 4; i++ {
-		wg.Add(1)
-		go handlePhotos(ch)
+		wgWorkers.Add(1)
+		go handlePhotos(ch, stateDb.Chan)
 	}
 
 	start := time.Now()
-	err = db.PhotoLoop(*firstPhotoId, ch)
+	err = db.PhotoLoop(firstPhotoId, ch)
 	close(ch)
 	if err != nil {
 		log.Fatalf("Error reading in photos from fspotdb: %v", err)
 	}
 
 	log.Printf("Waiting for queued tasks to complete.")
-	wg.Wait()
+	wgWorkers.Wait()
+	close(stateDb.Chan)
+	log.Printf("Waiting for log records to be written.")
+	wgLogger.Wait()
 	log.Printf("Finished in %v", time.Since(start))
 }

@@ -19,7 +19,7 @@ func TestCalculateTagPaths(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-  defer conn.Close()
+	defer conn.Close()
 	err = db.CalculateTagPaths()
 	if err != nil {
 		t.Fatal(err)
