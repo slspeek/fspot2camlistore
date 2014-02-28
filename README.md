@@ -28,7 +28,7 @@ It will start where it left the last time.
 
 You can check for errors with the command
 ```
-sqlitebrowser /home/steven/.config/fspot2camlistore/state.db
+sqlitebrowser $HOME/.config/fspot2camlistore/state.db
 ```
 ##Credits
 I copied the concurrency ideas and use of the camlistore client api from:
