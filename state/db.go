@@ -50,7 +50,11 @@ func (db *Db) Init() (err error) {
 }
 
 func (db *Db) Log(record Log) (err error) {
-	err = db.Conn.Exec(fmt.Sprintf("INSERT INTO fspotcamli (fspot_id, perma, error) VALUES (%d, '%s', '%s')", record.Id, record.Permanode, record.Error))
+	errString := ""
+	if record.Error != nil {
+		errString = fmt.Sprintf("%v", record.Error)
+	}
+	err = db.Conn.Exec(fmt.Sprintf("INSERT INTO fspotcamli (fspot_id, perma, error) VALUES (%d, '%s', '%s')", record.Id, record.Permanode, errString))
 	return
 }
 

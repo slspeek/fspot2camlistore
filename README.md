@@ -23,7 +23,13 @@ Typcally:
 ```
 ./fspot2camlistore -db $HOME/.config/f-spot/photos.db
 ```
+It can be run serveral times over a period of time as it keeps tracks of the work done in ~/.config/fspot2camlistore/state.db.
+It will start where it left the last time.
 
+You can check for errors with the command
+```
+sqlitebrowser /home/steven/.config/fspot2camlistore/state.db
+```
 ##Credits
 I copied the concurrency ideas and use of the camlistore client api from:
 https://github.com/dustin/photo-couch/blob/master/tools/phototocamli/tocamli.go
