@@ -9,11 +9,14 @@ import (
 	"fmt"
 	"github.com/slspeek/fspot2camlistore/fspot"
 	"github.com/slspeek/fspot2camlistore/state"
+	"io"
 	"log"
 	"os"
 	"sync"
 	"time"
 )
+
+const workDB = "./fspot2camlistore_photos.db"
 
 var (
 	photoDb     = flag.String("db", "test_db", "path to F-Spot sqlitedb")
@@ -22,6 +25,28 @@ var (
 
 var wgWorkers sync.WaitGroup
 var wgLogger sync.WaitGroup
+
+func removeWorkingCopy() (err error) {
+	return os.Remove(workDB)
+}
+
+func copyPhotosDb() (err error) {
+	var f io.Reader
+	f, err = os.Open(*photoDb)
+	if err != nil {
+		return
+	}
+	var out io.Writer
+	out, err = os.Create(workDB)
+	if err != nil {
+		return
+	}
+	_, err = io.Copy(out, f)
+	if err != nil {
+		return
+	}
+	return
+}
 
 func storePhoto(p fspot.Photo) (permaS string, err error) {
 	f, err := os.Open(p.Path)
@@ -101,7 +126,12 @@ func main() {
 		}
 	}()
 
-	conn, err := sqlite.Open(*photoDb)
+	err = copyPhotosDb()
+	if err != nil {
+		log.Fatalf("Unable to copy input database: %v", err)
+	}
+
+	conn, err := sqlite.Open(workDB)
 	if err != nil {
 		log.Fatalf("Unable to open f-spot source database because: %v", err)
 	}
@@ -132,4 +162,9 @@ func main() {
 	log.Printf("Waiting for log records to be written.")
 	wgLogger.Wait()
 	log.Printf("Finished in %v", time.Since(start))
+	err = removeWorkingCopy()
+	if err != nil {
+		log.Fatalf("Unable to remove working copy of input database: %v", err)
+	}
+
 }

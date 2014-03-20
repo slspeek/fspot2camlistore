@@ -16,8 +16,8 @@ go get github.com/slspeek/fspot2camlistore
 ```
 
 ## Running
-I recommend making a copy of your fspot-database before running fspot2camli on it, alltought it does not intend to modify it.
-Then point to your f-spot-database with the option -db.
+Point to your f-spot-database with the option -db.
+The tools makes of file system copy of this database, and works on the copy.
 Typcally:
 
 ```
