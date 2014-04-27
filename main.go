@@ -16,18 +16,19 @@ import (
 	"time"
 )
 
-const workDB = "./fspot2camlistore_photos.db"
+const workDb = "./fspot2camlistore_photos.db"
 
 var (
-	photoDb     = flag.String("db", "test_db", "path to F-Spot sqlitedb")
-	camliClient = client.NewOrFail()
+	defaultDbPath = fmt.Sprintf("%s/.config/f-spot/photos.db", os.Getenv("HOME"))
+	photoDb       = flag.String("db", defaultDbPath, "path to F-Spot sqlitedb")
+	camliClient   = client.NewOrFail()
 )
 
 var wgWorkers sync.WaitGroup
 var wgLogger sync.WaitGroup
 
 func removeWorkingCopy() (err error) {
-	return os.Remove(workDB)
+	return os.Remove(workDb)
 }
 
 func copyPhotosDb() (err error) {
@@ -37,7 +38,7 @@ func copyPhotosDb() (err error) {
 		return
 	}
 	var out io.Writer
-	out, err = os.Create(workDB)
+	out, err = os.Create(workDb)
 	if err != nil {
 		return
 	}
@@ -131,7 +132,7 @@ func main() {
 		log.Fatalf("Unable to copy input database: %v", err)
 	}
 
-	conn, err := sqlite.Open(workDB)
+	conn, err := sqlite.Open(workDb)
 	if err != nil {
 		log.Fatalf("Unable to open f-spot source database because: %v", err)
 	}
@@ -161,7 +162,12 @@ func main() {
 	close(stateDb.Chan)
 	log.Printf("Waiting for log records to be written.")
 	wgLogger.Wait()
-	log.Printf("Finished in %v", time.Since(start))
+
+	deltaT := time.Since(start)
+	stats := camliClient.Stats()
+	uploadSpeed := float64(stats.Uploads.Bytes) / (1024 * 1024) * deltaT.Seconds()
+	log.Printf("Finished in %v Speed %v Mb/s", time.Since(start), uploadSpeed)
+	log.Printf("Client stats: %s ", stats.String())
 	err = removeWorkingCopy()
 	if err != nil {
 		log.Fatalf("Unable to remove working copy of input database: %v", err)
