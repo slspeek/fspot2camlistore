@@ -2,6 +2,7 @@ package main
 
 import (
 	"camlistore.org/pkg/client"
+	"camlistore.org/pkg/osutil"
 	"camlistore.org/pkg/schema"
 	"camlistore.org/pkg/syncutil"
 	"code.google.com/p/gosqlite/sqlite"
@@ -21,9 +22,9 @@ const workDb = "./fspot2camlistore_photos.db"
 var (
 	defaultDbPath = fmt.Sprintf("%s/.config/f-spot/photos.db", os.Getenv("HOME"))
 	photoDb       = flag.String("db", defaultDbPath, "path to F-Spot sqlitedb")
-	camliClient   = client.NewOrFail()
+	ping          = flag.Bool("ping", false, "Only ping server")
 )
-
+var camliClient *client.Client
 var wgWorkers sync.WaitGroup
 var wgLogger sync.WaitGroup
 
@@ -104,7 +105,11 @@ func handlePhotos(ch <-chan fspot.Photo, logger state.LogChan) {
 }
 
 func main() {
+	log.Printf("F-Spot to Camlistore starting ...")
+	osutil.AddSecretRingFlag()
 	flag.Parse()
+	camliClient = client.NewOrFail()
+
 	stateDb, err := state.Open()
 	if err != nil {
 		log.Fatalf("Unable to open state recording database because: %v", err)

@@ -21,7 +21,7 @@ The tools makes of file system copy of this database, and works on the copy.
 Typcally:
 
 ```
-./fspot2camlistore -db $HOME/.config/f-spot/photos.db
+./fspot2camlistore -secret-keyring=$HOME/.config/camlistore/identity-secring.gpg
 ```
 It can be run serveral times over a period of time as it keeps tracks of the work done in ~/.config/fspot2camlistore/state.db.
 It will start where it left the last time.
