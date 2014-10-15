@@ -1,7 +1,7 @@
 fspot2camlistore
 ================
 
-Import your F-Spot collections to Camlistore. This tools adds the following F-Spot photo attributes to the permanode associated with the photo's default version image:
+Import your F-Spot collections to Camlistore. This tool adds the following F-Spot photo attributes to the permanode associated with the photo's default version image:
 
   * fspot_id, the id of the photo in F-Spot
   * fspot_time, the time extracted from exif by F-Spot (propably redundant)
@@ -17,7 +17,7 @@ go get github.com/slspeek/fspot2camlistore
 
 ## Running
 Point to your f-spot-database with the option -db.
-The tools makes of file system copy of this database, and works on the copy.
+The tool makes of file system copy of this database, and works on the copy.
 Typcally:
 
 ```
