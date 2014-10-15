@@ -2,6 +2,7 @@ package main
 
 import (
 	"camlistore.org/pkg/client"
+	"camlistore.org/pkg/osutil"
 	"camlistore.org/pkg/schema"
 	"camlistore.org/pkg/syncutil"
 	"code.google.com/p/gosqlite/sqlite"
@@ -104,6 +105,7 @@ func handlePhotos(ch <-chan fspot.Photo, logger state.LogChan) {
 }
 
 func main() {
+	osutil.AddSecretRingFlag()
 	flag.Parse()
 	stateDb, err := state.Open()
 	if err != nil {
