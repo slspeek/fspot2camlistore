@@ -17,7 +17,7 @@ go get github.com/slspeek/fspot2camlistore
 
 ## Running
 Point to your f-spot-database with the option -db.
-The tool makes of file system copy of this database, and works on the copy.
+The tool makes a file system copy of this database, and works on the copy.
 Typically:
 
 ```
