@@ -170,7 +170,7 @@ func main() {
 
 	deltaT := time.Since(start)
 	stats := camliClient.Stats()
-	uploadSpeed := float64(stats.Uploads.Bytes) / (1024 * 1024) * deltaT.Seconds()
+	uploadSpeed := float64(stats.Uploads.Bytes) / (1024 * 1024 * deltaT.Seconds())
 	log.Printf("Finished in %v Speed %v Mb/s", time.Since(start), uploadSpeed)
 	log.Printf("Client stats: %s ", stats.String())
 	err = removeWorkingCopy()
